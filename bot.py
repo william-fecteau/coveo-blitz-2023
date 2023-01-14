@@ -56,12 +56,13 @@ class Bot:
         PATH_INTERSECTION_MIN = 4
 
         posAndCount = self.bestPositionSpike()
-
+        print(posAndCount)
         if posAndCount[1] < PATH_INTERSECTION_MIN:
             return
 
         spearmanCount = countTowerType(self.gameMsg, TowerType.SPEAR_SHOOTER)
         if spearmanCount > 7:
+            print(posAndCount)
             actions.append(BuildAction(
                 TowerType.SPIKE_SHOOTER, posAndCount[0]))
 
@@ -186,7 +187,6 @@ class Bot:
         return max
 
     def bestPositionSpike(self):
-
         for path in self.gameMsg.map.paths:
             tilesList = path.tiles
             tilesList.pop(-1)
@@ -199,6 +199,9 @@ class Bot:
 
                     countSpike = 0
                     neighbourList = getNeighbours(self.gameMsg, i.position)
+                    for a in neighbourList:
+                        print(a.position)
+                    print("pepi")
                     for j in neighbourList:
                         if j.tile is None:
                             continue
