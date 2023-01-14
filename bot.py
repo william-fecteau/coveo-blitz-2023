@@ -158,8 +158,17 @@ class Bot:
 
     def selectAliveTeam(self):
         aliveTeams = self.getAliveTeams()
+        minHp = 6969
+        targettedTeam = None
+        for teamId in aliveTeams:
+            if self.gameMsg.teamInfos[teamId].hp < minHp:
+                minHp = self.gameMsg.teamInfos[teamId].hp
+                targettedTeam = teamId
 
-        return random.choice(aliveTeams)
+        if targettedTeam is None:
+            return random.choice(aliveTeams)
+
+        return targettedTeam
 
     def attackAfterRound10(self) -> BuildAction:
         actions = list()
