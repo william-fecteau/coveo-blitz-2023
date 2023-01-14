@@ -9,6 +9,7 @@ class Bot:
     def __init__(self):
         self.tileIndexes = None
         self.pathIndex = 0
+        self.EcoBase = 225
 
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
@@ -72,7 +73,8 @@ class Bot:
             actions.append(SendReinforcementsAction(
                 value[0], other_team_ids[0]))
 
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 250:
+
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= self.EcoBase + roundNumber*25:
             towerPos = positionRandom()
 
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
@@ -162,17 +164,23 @@ class Bot:
 
         for path in self.gameMsg.map.paths:
             for pos in path.tiles:
-                posList = getNeighbours(pos)
+                posList: List[Neighbour] = getNeighbours(pos)
                 goodPosSet = set()
                 for i in posList:
+                    if not isTileEmpty(i.tile):
+                        continue
+
                     count = 0
                     neighbourList = getNeighbours(i.position)
                     for j in neighbourList:
+                        if j is None:
+                            continue
+
                         if len(j.tile.paths) != 0:
                             count += 1
                     goodPosSet.add((i.position, count))
 
-        max = (0, 0)
+        max = (Position(0, 0), 0)
         for i in goodPosSet:
             if i[1] > max[1]:
                 max = i
