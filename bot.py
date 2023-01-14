@@ -202,7 +202,6 @@ class Bot:
                     countSpike = 0
                     neighbourList = getNeighbours(self.gameMsg, i.position)
                     for j in neighbourList:
-                        print(j.tile)
                         if j.tile is None:
                             continue
 
