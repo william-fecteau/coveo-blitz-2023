@@ -60,17 +60,22 @@ class Bot:
             self.pathIndex += 1
 
     def placeSpike(self, actions):
-        PATH_INTERSECTION_MIN = 4
-
         posAndCount = self.bestPositionSpike()
 
-        if posAndCount[1] < PATH_INTERSECTION_MIN:
-            return
-
+        spikeCount = countTowerType(self.gameMsg, TowerType.SPIKE_SHOOTER)
         spearmanCount = countTowerType(self.gameMsg, TowerType.SPEAR_SHOOTER)
-        if spearmanCount > 7:
+
+        ratio = float(spearmanCount)/float(spikeCount)
+
+        if posAndCount[1] > 6 and ratio < 3:
             actions.append(BuildAction(
                 TowerType.SPIKE_SHOOTER, posAndCount[0]))
+            return
+
+        # spearmanCount = countTowerType(self.gameMsg, TowerType.SPEAR_SHOOTER)
+        # if spearmanCount > 7:
+        #     actions.append(BuildAction(
+        #         TowerType.SPIKE_SHOOTER, posAndCount[0]))
 
     def followPathStrat(self):
         actions = list()
@@ -214,7 +219,7 @@ class Bot:
         nombreRound = self.gameMsg.round
         if (nbPaths == 1):
             self.EcoBase = 250
-            self.EcoScaling = 35
+            self.EcoScaling = 45
         if (nbPaths == 2):
             self.EcoBase = 240
             self.EcoScaling = 35
