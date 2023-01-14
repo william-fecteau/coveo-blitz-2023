@@ -29,6 +29,14 @@ class Bot:
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
 
+        if gameMsg.tick == 0 and len(gameMsg.map.paths) > 1:
+            actions = list()
+            self.placeSpearman(actions)
+            self.placeSpearman(actions)
+            self.placeSpearman(actions)
+            print(actions)
+            return actions
+
         roundNumber = self.gameMsg.round
         if roundNumber >= 2 and self.estCeQuonSeFaitCasserLesFesses() and len(self.getAliveTeams()) > 2:
             self.aggresiveBuild()
