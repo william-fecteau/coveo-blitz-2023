@@ -1,5 +1,6 @@
 from game_message import *
 from actions import *
+from dataJellyFish import *
 import random
 
 
@@ -65,5 +66,35 @@ class Bot:
 
             if (max[1] < ratioArgentCoutArgentWin):
                 max = tuple(value, ratioArgentCoutArgentWin)
+
+        return max
+
+    def OptimisationDmgMoney(self):
+        max = (EnemyType.LVL1, 0.1)
+        lvl = 0
+        for value in self.gameMsg.shop.reinforcements.keys():
+            lvl +=1
+            dictValues = self.gameMsg.shop.reinforcements[value]
+
+            maxDamage = EnnemiStats["ennemi"][f'lvl{lvl}']['maxHP'] * dictValues.count
+            dmgPerMoney = maxDamage / dictValues.price            
+
+            if (max[1] < dmgPerMoney):
+                max = tuple(value, dmgPerMoney)
+
+        return max
+
+    def OptimisationDmgTime(self):
+        max = (EnemyType.LVL1, 0.1)
+        lvl = 0
+        for value in self.gameMsg.shop.reinforcements.keys():
+            lvl +=1
+            dictValues = self.gameMsg.shop.reinforcements[value]
+
+            maxDamage = EnnemiStats["ennemi"][f'lvl{lvl}']['maxHP'] * dictValues.count
+            dmgPerTime = maxDamage / dictValues.delayPerSpawnInTicks            
+
+            if (max[1] < dmgPerTime):
+                max = tuple(value, dmgPerTime)
 
         return max
