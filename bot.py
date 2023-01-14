@@ -65,6 +65,9 @@ class Bot:
         spikeCount = countTowerType(self.gameMsg, TowerType.SPIKE_SHOOTER)
         spearmanCount = countTowerType(self.gameMsg, TowerType.SPEAR_SHOOTER)
 
+        if spikeCount == 0:
+            spikeCount = 1
+
         ratio = float(spearmanCount)/float(spikeCount)
 
         if posAndCount[1] > 6 and ratio < 3:
