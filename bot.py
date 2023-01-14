@@ -22,19 +22,19 @@ class Bot:
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
 
         t = getNeighbours(self.gameMsg, Position(0, 0))
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 200:
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
+            value = self.optimisationMoneyGagnerParSeconde()
+            actions.append(SendReinforcementsAction(
+                value[0], other_team_ids[0]))
+
+
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 250:
             randX = random.randint(0, self.gameMsg.map.width - 1)
             randY = random.randint(0, self.gameMsg.map.height - 1)
 
             towerPos = Position(randX, randY)
 
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
-        else:
-            if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
-                value = self.optimisationMoneyGagnerParSeconde()
-                actions.append(SendReinforcementsAction(
-                    value[0], other_team_ids[0]))
-
         return actions
 
     def attackAfterRound10(self) -> BuildAction:
@@ -72,9 +72,9 @@ class Bot:
             salaireAugmentation = dictValues.payoutBonus
             salaireCount = dictValues.price
             ratioArgentCoutArgentWin = salaireCount/salaireAugmentation
-            tuple(value, ratioArgentCoutArgentWin)
+            (value, ratioArgentCoutArgentWin)
 
             if (max[1] < ratioArgentCoutArgentWin):
-                max = tuple(value, ratioArgentCoutArgentWin)
+                max = (value, ratioArgentCoutArgentWin)
 
         return max
