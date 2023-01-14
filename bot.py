@@ -108,9 +108,12 @@ class Bot:
         other_team_ids = [
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
 
+        aliveTeams = []
         for teamId in other_team_ids:
             if self.gameMsg.teamInfos[teamId].isAlive:
-                return teamId
+                aliveTeams.append(teamId)
+
+        return random.choice(aliveTeams)
 
     def attackAfterRound10(self) -> BuildAction:
         actions = list()
