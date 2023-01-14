@@ -34,6 +34,14 @@ class Bot:
 
         return actions
 
+    def attackAfterRound10(self) -> BuildAction:
+        actions = list()
+        other_team_ids = [
+            team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
+        #prio send attack
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= 100:
+            actions.append(SendReinforcementsAction(self.OptimisationMoneyRentabiliter()[0], other_team_ids[0]))
+
     def optimisationMoneyGagnerParSeconde(self) -> tuple[EnemyType, float]:
         max = (EnemyType.LVL1, 0.1)
         for value in self.gameMsg.shop.reinforcements.keys():
