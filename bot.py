@@ -109,3 +109,26 @@ class Bot:
                 max = tuple(value, dmgPerTime)
 
         return max
+
+    def bestPositionSpike(self):
+        
+        for path in self.gameMsg.map.paths:
+            for pos in path.tiles:
+                posList = getNeighbours(pos)
+                goodPosSet = set() 
+                for i in posList:
+                    count = 0
+                    neighbourList = getNeighbours(i.position)
+                    for j in neighbourList:
+                        if len(j.tile.paths) != 0:
+                            count += 1
+                    goodPosSet.add((i.position, count))
+        
+        max = (0,0)
+        for i in goodPosSet:
+            if i[1] > max[1]:
+                max = i
+        if max[1] >=4:
+            return max  
+        return None
+
