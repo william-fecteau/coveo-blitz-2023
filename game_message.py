@@ -8,6 +8,14 @@ import cattrs
 
 
 @dataclass
+class Neighbour:
+    position: Position
+    tile: Tile
+
+
+# ===============================================================================
+
+@dataclass
 class GameMessage:
     type: str
     tick: int
@@ -104,7 +112,9 @@ class EnemyReinforcements:
     fromTeam: str
     toTeam: str
 
-cattrs.register_structure_hook(EnemyReinforcements, make_dict_structure_fn(EnemyReinforcements, cattrs.global_converter, fromTeam=override(rename="from"), toTeam=override(rename="to")))
+
+cattrs.register_structure_hook(EnemyReinforcements, make_dict_structure_fn(
+    EnemyReinforcements, cattrs.global_converter, fromTeam=override(rename="from"), toTeam=override(rename="to")))
 
 
 @dataclass
