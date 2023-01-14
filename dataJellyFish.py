@@ -1,4 +1,4 @@
-{
+EnnemiStats = {
     "Ennemi": {
         "lvl1": {
             "speed": 1.0,
