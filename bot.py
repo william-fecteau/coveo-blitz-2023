@@ -18,7 +18,7 @@ class Bot:
     def followPathStrat(self):
         actions = list()
 
-        # TODO: MAKE BETTER ECONOMY CHOICE
+        # Economy
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
             other_team_ids = [
                 team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
@@ -30,6 +30,7 @@ class Bot:
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= 260:
             return actions
 
+        # Spear placement
         nbPaths = len(self.gameMsg.map.paths)
         if self.tileIndexes is None:
             self.tileIndexes = [0 for _ in range(nbPaths)]
@@ -156,11 +157,11 @@ class Bot:
         return max
 
     def bestPositionSpike(self):
-        
+
         for path in self.gameMsg.map.paths:
             for pos in path.tiles:
                 posList = getNeighbours(pos)
-                goodPosSet = set() 
+                goodPosSet = set()
                 for i in posList:
                     count = 0
                     neighbourList = getNeighbours(i.position)
@@ -168,12 +169,11 @@ class Bot:
                         if len(j.tile.paths) != 0:
                             count += 1
                     goodPosSet.add((i.position, count))
-        
-        max = (0,0)
+
+        max = (0, 0)
         for i in goodPosSet:
             if i[1] > max[1]:
                 max = i
-        if max[1] >=4:
-            return max  
+        if max[1] >= 4:
+            return max
         return None
-
