@@ -1,6 +1,7 @@
 from game_message import *
 from actions import *
 from common import *
+from dataJellyFish import *
 import random
 
 
@@ -54,29 +55,30 @@ class Bot:
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
 
         t = getNeighbours(self.gameMsg, Position(0, 0))
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 200:
-            randX = random.randint(0, self.gameMsg.map.width - 1)
-            randY = random.randint(0, self.gameMsg.map.height - 1)
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
+            value = self.optimisationMoneyGagnerParSeconde()
+            actions.append(SendReinforcementsAction(
+                value[0], other_team_ids[0]))
 
-            towerPos = Position(randX, randY)
+
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 250:
+            towerPos = positionRandom()
 
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
-        else:
-            if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
-                value = self.optimisationMoneyGagnerParSeconde()
-                actions.append(SendReinforcementsAction(
-                    value[0], other_team_ids[0]))
-
         return actions
 
     def attackAfterRound10(self) -> BuildAction:
         actions = list()
         other_team_ids = [
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
-        # prio send attack
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= 100:
-            actions.append(SendReinforcementsAction(
-                self.OptimisationMoneyRentabiliter()[0], other_team_ids[0]))
+        #prio send attack
+        bestDPS = self.OptimisationDmgTime()
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 100:
+            actions.append(SendReinforcementsAction(bestDPS[0], other_team_ids[0]))
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 1000:
+            towerPos = positionRandom()
+
+            actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
 
     def optimisationMoneyGagnerParSeconde(self) -> tuple[EnemyType, float]:
         max = (EnemyType.LVL1, 0.1)
@@ -105,9 +107,39 @@ class Bot:
             salaireAugmentation = dictValues.payoutBonus
             salaireCount = dictValues.price
             ratioArgentCoutArgentWin = salaireCount/salaireAugmentation
-            tuple(value, ratioArgentCoutArgentWin)
+            (value, ratioArgentCoutArgentWin)
 
             if (max[1] < ratioArgentCoutArgentWin):
-                max = tuple(value, ratioArgentCoutArgentWin)
+                max = (value, ratioArgentCoutArgentWin)
+
+        return max
+
+    def OptimisationDmgMoney(self):
+        max = (EnemyType.LVL1, 0.1)
+        lvl = 0
+        for value in self.gameMsg.shop.reinforcements.keys():
+            lvl +=1
+            dictValues = self.gameMsg.shop.reinforcements[value]
+
+            maxDamage = EnnemiStats["ennemi"][f'lvl{lvl}']['maxHP'] * dictValues.count
+            dmgPerMoney = maxDamage / dictValues.price            
+
+            if (max[1] < dmgPerMoney):
+                max = tuple(value, dmgPerMoney)
+
+        return max
+
+    def OptimisationDmgTime(self):
+        max = (EnemyType.LVL1, 0.1)
+        lvl = 0
+        for value in self.gameMsg.shop.reinforcements.keys():
+            lvl +=1
+            dictValues = self.gameMsg.shop.reinforcements[value]
+
+            maxDamage = EnnemiStats["ennemi"][f'lvl{lvl}']['maxHP'] * dictValues.count
+            dmgPerTime = maxDamage / dictValues.delayPerSpawnInTicks            
+
+            if (max[1] < dmgPerTime):
+                max = tuple(value, dmgPerTime)
 
         return max
