@@ -4,6 +4,8 @@ from common import *
 from dataJellyFish import *
 import random
 
+SPEARMAN_START = 6
+
 
 class Bot:
     def __init__(self):
@@ -19,12 +21,12 @@ class Bot:
     def placeSpearman(self, actions):
         nbPaths = len(self.gameMsg.map.paths)
         if self.tileIndexes is None:
-            self.tileIndexes = [0 for _ in range(nbPaths)]
+            self.tileIndexes = [SPEARMAN_START for _ in range(nbPaths)]
 
         self.pathIndex = self.pathIndex % nbPaths
 
         if self.tileIndexes[self.pathIndex] >= len(self.gameMsg.map.paths[self.pathIndex].tiles):
-            self.tileIndexes[self.pathIndex] = 0
+            self.tileIndexes[self.pathIndex] = SPEARMAN_START
 
         pathPos = self.gameMsg.map.paths[self.pathIndex].tiles[self.tileIndexes[self.pathIndex]]
         neighbours: list[Neighbour] = getNeighbours(self.gameMsg, pathPos)
@@ -46,7 +48,6 @@ class Bot:
         PATH_INTERSECTION_MIN = 4
 
         posAndCount = self.bestPositionSpike()
-        print(posAndCount)
 
         if posAndCount[1] < PATH_INTERSECTION_MIN:
             return
