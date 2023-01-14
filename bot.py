@@ -26,6 +26,7 @@ class Bot:
             # posIndex = random.randint(0, len(neighboursPositions) - 1)
             # towerPos = neighboursPositions[posIndex]
         else:
+            actions.append(self.optimisationMoneyGagner()[0], otherTeamIds[curTeam % len(otherTeamIds)])
             actions.append(SendReinforcementsAction(
                 EnemyType.LVL1, otherTeamIds[curTeam % len(otherTeamIds)]))
             curTeam += 1
