@@ -6,17 +6,49 @@ import random
 
 class Bot:
     def __init__(self):
-        print("Initializing your super mega duper bot")
+        self.tileIndexes = None
+        self.pathIndex = 0
 
     def get_next_move(self, gameMsg: GameMessage):
-        """
-        Here is where the magic happens, for now the moves are not very good. I bet you can do better ;)
-        """
         self.gameMsg = gameMsg
 
-        return self.randomPlacementStrat()
+        return self.followPathStrat()
 
-    def randomPlacementStrat(self) -> BuildAction:
+    def followPathStrat(self):
+        actions = list()
+
+        # TODO: MAKE BETTER ECONOMY CHOICE
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money < 200:
+            return actions
+
+        nbPaths = len(self.gameMsg.map.paths)
+        if self.tileIndexes is None:
+            self.tileIndexes = [0 for _ in range(nbPaths)]
+
+        self.pathIndex = self.pathIndex % nbPaths
+
+        if self.tileIndexes[self.pathIndex] >= len(self.gameMsg.map.paths[self.pathIndex].tiles):
+            self.tileIndexes[self.pathIndex] = 0
+
+        pathPos = self.gameMsg.map.paths[self.pathIndex].tiles[self.tileIndexes[self.pathIndex]]
+        neighbours: list[Neighbour] = getNeighbours(self.gameMsg, pathPos)
+
+        foundPlace = False
+        for neighbour in neighbours:
+            if isTileEmpty(neighbour.tile):
+                actions.append(BuildAction(
+                    TowerType.SPEAR_SHOOTER, neighbour.position))
+                foundPlace = True
+                break
+
+        self.tileIndexes[self.pathIndex] += 5
+
+        if foundPlace:
+            self.pathIndex += 1
+
+        return actions
+
+    def randomPlacementStrat(self):
         actions = list()
         other_team_ids = [
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
@@ -41,9 +73,10 @@ class Bot:
         actions = list()
         other_team_ids = [
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
-        #prio send attack
+        # prio send attack
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= 100:
-            actions.append(SendReinforcementsAction(self.OptimisationMoneyRentabiliter()[0], other_team_ids[0]))
+            actions.append(SendReinforcementsAction(
+                self.OptimisationMoneyRentabiliter()[0], other_team_ids[0]))
 
     def optimisationMoneyGagnerParSeconde(self) -> tuple[EnemyType, float]:
         max = (EnemyType.LVL1, 0.1)
