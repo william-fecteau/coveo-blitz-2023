@@ -28,8 +28,9 @@ class Bot:
 
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
         else:
-            actions.append(SendReinforcementsAction(
-                EnemyType.LVL1, other_team_ids[0]))
+            if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
+                value = self.optimisationMoneyGagnerParSeconde()
+                actions.append(SendReinforcementsAction(value[0], other_team_ids[0]))
 
         return actions
 
