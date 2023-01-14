@@ -34,7 +34,6 @@ class Bot:
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
 
-
         if gameMsg.tick == 0 and len(gameMsg.map.paths) > 1:
             actions = list()
             self.placeSpearman(actions)
@@ -49,7 +48,7 @@ class Bot:
         if roundNumber > 15:
             return self.attackAfterRound10()
 
-        if gameMsg.teamInfos[gameMsg.teamId].money > 1500:
+        if gameMsg.teamInfos[gameMsg.teamId].money > 1500 and gameMsg.round < 18:
             actions = list()
             actions.append(self.randomPlacementStrat())
             actions.append(self.randomPlacementStrat())
