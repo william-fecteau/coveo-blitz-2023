@@ -160,17 +160,23 @@ class Bot:
 
         for path in self.gameMsg.map.paths:
             for pos in path.tiles:
-                posList = getNeighbours(pos)
+                posList: List[Neighbour] = getNeighbours(pos)
                 goodPosSet = set()
                 for i in posList:
+                    if not isTileEmpty(i.tile):
+                        continue
+
                     count = 0
                     neighbourList = getNeighbours(i.position)
                     for j in neighbourList:
+                        if j is None:
+                            continue
+
                         if len(j.tile.paths) != 0:
                             count += 1
                     goodPosSet.add((i.position, count))
 
-        max = (0, 0)
+        max = (Position(0, 0), 0)
         for i in goodPosSet:
             if i[1] > max[1]:
                 max = i
