@@ -1,66 +1,169 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from dataclasses_json import dataclass_json
-from typing import List, Union
+from typing import List, Dict
+from enum import Enum, unique
+from cattrs.gen import make_dict_structure_fn, override
+import cattrs
 
 
-@dataclass_json
 @dataclass
-class Tick:
-    currentTick: int
-    totalTicks: int
+class GameMessage:
+    type: str
+    tick: int
     map: Map
-    currentLocation: Union[Position, None]
-    spawnLocation: Union[Position, None]
-    visitedPortIndices: List[int]
-    tideSchedule: List[int]
-    isOver: bool
+    round: int
+    ticksUntilPayout: int
+    teamId: str
+    teams: List[str]
+    teamInfos: Dict[str, TeamInfo]
+    playAreas: Dict[str, PlayArea]
+    shop: Shop
+    lastTickErrors: List[str]
+    constants: Constants
 
-@dataclass_json
+
+@dataclass
+class TeamInfo:
+    id: str
+    name: str
+    money: int
+    hp: int
+    isAlive: bool
+    payoutBonus: int
+    sentReinforcements: List[EnemyReinforcements]
+
+
 @dataclass
 class Map:
-    topology: List[List[int]]
-    ports: List[Position]
-    tideLevels: TideLevels
+    name: str
+    width: int
+    height: int
+    paths: List[Path]
+    obstacles: List[Position]
 
-@dataclass_json
-@dataclass
-class TideLevels:
-    max: int
-    min: int
 
-@dataclass_json
 @dataclass
-class Position:
-    row: int
-    column: int
+class Path:
+    tiles: List[Position]
+    id: str
 
-@dataclass_json
-@dataclass
-class Action():
-    pass
 
-@dataclass_json
 @dataclass
-class Sail(Action):
-    direction: str
-    kind: str = "sail"
+class PlayArea:
+    teamId: str
+    enemies: List[Enemy]
+    enemyReinforcementsQueue: List[EnemyReinforcements]
+    towers: List[Tower]
+    grid: Dict[int, Dict[int, Tile]]
 
-@dataclass_json
+    def get_tile_at(self, position: Position):
+        try:
+            return self.grid[position.x][position.y]
+        except KeyError:
+            return None
+
+    def is_empty(self, position: Position):
+        tile = self.get_tile_at(position)
+        if tile is None:
+            return True
+        return len(tile.towers) == 0 and len(tile.enemies) == 0
+
+
+@unique
+class EnemyType(str, Enum):
+    LVL1 = "LVL1"
+    LVL2 = "LVL2"
+    LVL3 = "LVL3"
+    LVL4 = "LVL4"
+    LVL5 = "LVL5"
+    LVL6 = "LVL6"
+    LVL7 = "LVL7"
+    LVL8 = "LVL8"
+    LVL9 = "LVL9"
+    LVL10 = "LVL10"
+    LVL11 = "LVL11"
+    LVL12 = "LVL12"
+
+
 @dataclass
-class Spawn(Action):
+class Enemy:
+    id: str
+    type: EnemyType
     position: Position
-    kind: str = "spawn"
+    precisePosition: PositionPrecise
+    isKilled: bool
+    hasEndedPath: bool
+    path: str
 
-@dataclass_json
+
 @dataclass
-class Anchor(Action):
-    kind: str = "anchor"
+class EnemyReinforcements:
+    enemyType: EnemyType
+    count: int
+    fromTeam: str
+    toTeam: str
 
-@dataclass_json
+cattrs.register_structure_hook(EnemyReinforcements, make_dict_structure_fn(EnemyReinforcements, cattrs.global_converter, fromTeam=override(rename="from"), toTeam=override(rename="to")))
+
+
 @dataclass
-class Dock(Action):
-    kind: str = "dock"
+class Tower:
+    id: str
+    type: TowerType
+    position: Position
+    width: int
+    height: int
+    isShooting: bool
 
-directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+
+@dataclass
+class Tile:
+    towers: List[Tower]
+    enemies: List[Enemy]
+    paths: List[str]
+    hasObstacle: bool
+
+
+@dataclass
+class Shop:
+    towers: Dict[TowerType, TowerShopEntry]
+    reinforcements: Dict[EnemyType, ReinforcementsShopEntry]
+
+
+@dataclass
+class TowerShopEntry:
+    price: int
+
+
+@dataclass
+class ReinforcementsShopEntry:
+    price: float
+    payoutBonus: float
+    count: int
+    delayPerSpawnInTicks: float
+
+
+@dataclass(eq=True, frozen=True)
+class Position:
+    x: int
+    y: int
+
+
+@dataclass
+class PositionPrecise:
+    x: float
+    y: float
+
+
+@dataclass
+class Constants:
+    payoutIntervalInTick: int
+    maxReinforcementsSentPerTeam: int
+
+
+@unique
+class TowerType(str, Enum):
+    SPIKE_SHOOTER = "SPIKE_SHOOTER"
+    BOMB_SHOOTER = "BOMB_SHOOTER"
+    SPEAR_SHOOTER = "SPEAR_SHOOTER"

@@ -1,18 +1,21 @@
 #!/usr/bin/env python
 
 import asyncio
-import os
-import websockets
+import dataclasses
 import json
+import os
+
+import cattrs
+import websockets
 
 from bot import Bot
-from game_message import Tick
+from game_message import GameMessage
 
 
 async def run():
     uri = "ws://127.0.0.1:8765"
 
-    async with websockets.connect(uri) as websocket:
+    async with websockets.connect(uri, max_size=None) as websocket:
         bot = Bot()
         if "TOKEN" in os.environ:
             await websocket.send(json.dumps({"type": "REGISTER", "token": os.environ["TOKEN"]}))
@@ -31,17 +34,22 @@ async def game_loop(websocket: websockets.WebSocketServerProtocol, bot: Bot):
             print("Websocket was closed.")
             break
 
-        game_message: Tick = Tick.from_dict(json.loads(message))
-        print(f"Playing tick {game_message.currentTick} of {game_message.totalTicks}")
+        game_message: GameMessage = cattrs.structure(json.loads(message), GameMessage)
+        print(f"Playing tick {game_message.tick} in round {game_message.round}")
+
+        if game_message.lastTickErrors:
+            print(f'Errors during last tick : {game_message.lastTickErrors}')
 
         payload = {
             "type": "COMMAND",
-            "tick": game_message.currentTick,
-            "action": bot.get_next_move(game_message).to_dict()
+            "tick": game_message.tick,
+            "actions": [dataclasses.asdict(action) for action in bot.get_next_move(game_message)]
         }
 
         await websocket.send(json.dumps(payload))
 
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(run())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(run())
