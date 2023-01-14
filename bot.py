@@ -9,6 +9,7 @@ class Bot:
     def __init__(self):
         self.tileIndexes = None
         self.pathIndex = 0
+        self.EcoBase = 225
 
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
@@ -70,7 +71,8 @@ class Bot:
             actions.append(SendReinforcementsAction(
                 value[0], other_team_ids[0]))
 
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 250:
+
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= self.EcoBase + roundNumber*25:
             towerPos = positionRandom()
 
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
