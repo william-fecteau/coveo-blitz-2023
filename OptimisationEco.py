@@ -4,9 +4,8 @@ from actions import *
 
 def OptimisationRendement():
     #GameMessage.ReinforcementsShopEntry
-    for EnemyType in Shop.reinforcements:
+    for value in Shop.reinforcements.values:
         print("AAAAAAAAAAA")
-        EnemyType.value
         print(EnemyType.value)
     return 0
 
