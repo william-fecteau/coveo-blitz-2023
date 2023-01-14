@@ -4,8 +4,6 @@ from common import *
 from dataJellyFish import *
 import random
 
-SPEARMAN_START = 6
-
 
 class Bot:
     def __init__(self):
@@ -13,6 +11,9 @@ class Bot:
         self.pathIndex = 0
         self.EcoBase = 225
         self.EcoScaling = 25
+        self.spearLoop = 0
+        self.step = 5
+        self.spearmanStart = 6
 
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
@@ -30,18 +31,20 @@ class Bot:
     def placeSpearman(self, actions):
         nbPaths = len(self.gameMsg.map.paths)
         if self.tileIndexes is None:
-            self.tileIndexes = [SPEARMAN_START for _ in range(nbPaths)]
+            self.tileIndexes = [self.spearmanStart for _ in range(nbPaths)]
 
         self.pathIndex = self.pathIndex % nbPaths
 
         if self.tileIndexes[self.pathIndex] >= len(self.gameMsg.map.paths[self.pathIndex].tiles):
-            self.tileIndexes[self.pathIndex] = SPEARMAN_START
+            self.spearLoop += 1
 
-        # countSpearman = countTowerType(self.gameMsg, TowerType.SPEAR_SHOOTER)
-        # if countSpearman % len(self.gameMsg.map.paths) == 0:
-        #     bestPosAndCount = self.bestPositionSpike()
-        #     actions.append(BuildAction(
-        #         TowerType.SPEAR_SHOOTER, neighbour.position))
+            if self.spearLoop == 1:
+                self.spearmanStart = 0
+                self.step = 2
+            if self.spearLoop == 2:
+                self.step = 1
+
+            self.tileIndexes[self.pathIndex] = self.spearmanStart
 
         pathPos = self.gameMsg.map.paths[self.pathIndex].tiles[self.tileIndexes[self.pathIndex]]
         neighbours: list[Neighbour] = getNeighbours(self.gameMsg, pathPos)
@@ -54,7 +57,7 @@ class Bot:
                 foundPlace = True
                 break
 
-        self.tileIndexes[self.pathIndex] += 5
+        self.tileIndexes[self.pathIndex] += self.step
 
         if foundPlace:
             self.pathIndex += 1
