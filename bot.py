@@ -20,7 +20,7 @@ class Bot:
         actions = list()
 
         # Economy
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 15:
             other_team_ids = [
                 team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
             value = self.optimisationMoneyGagnerParSeconde()
@@ -66,7 +66,7 @@ class Bot:
 
         roundNumber = self.gameMsg.round
         t = getNeighbours(self.gameMsg, Position(0, 0))
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 15:
             value = self.optimisationMoneyGagnerParSeconde()
             actions.append(SendReinforcementsAction(
                 value[0], other_team_ids[0]))
