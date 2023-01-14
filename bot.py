@@ -15,10 +15,23 @@ class Bot:
         self.step = 5
         self.spearmanStart = 6
 
+    def getAliveTeams(self):
+        other_team_ids = [
+            team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
+
+        aliveTeams = []
+        for teamId in other_team_ids:
+            if self.gameMsg.teamInfos[teamId].isAlive:
+                aliveTeams.append(teamId)
+
+        return aliveTeams
+
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
 
         roundNumber = self.gameMsg.round
+        if roundNumber >= 2 and self.estCeQuonSeFaitCasserLesFesses() and len(self.getAliveTeams()) > 2:
+            self.aggresiveBuild()
         if roundNumber > 15:
             return self.attackAfterRound10()
 
@@ -27,6 +40,21 @@ class Bot:
     def calculEco(self):
         roundNumber = self.gameMsg.round
         return self.EcoBase + roundNumber*25
+
+    def estCeQuonSeFaitCasserLesFesses(self):
+        other_team_ids = [
+            team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
+
+        enemies = []
+        for teamId in other_team_ids:
+            enemies.append(len(self.gameMsg.playAreas[teamId].enemies))
+
+        maxEnemy = max(enemies)
+        ourEnemy = len(self.gameMsg.playAreas[self.gameMsg.teamId].enemies)
+
+        ratio = float(maxEnemy)/float(ourEnemy)
+
+        return ratio > 1.2
 
     def placeSpearman(self, actions):
         nbPaths = len(self.gameMsg.map.paths)
@@ -104,14 +132,18 @@ class Bot:
 
         return actions
 
-    def selectAliveTeam(self):
-        other_team_ids = [
-            team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
+    def aggresiveBuild(self):
+        actions = list()
 
-        aliveTeams = []
-        for teamId in other_team_ids:
-            if self.gameMsg.teamInfos[teamId].isAlive:
-                aliveTeams.append(teamId)
+        roundNumber = self.gameMsg.round
+
+        self.placeSpike(actions)
+        self.placeSpearman(actions)
+
+        return actions
+
+    def selectAliveTeam(self):
+        aliveTeams = self.getAliveTeams()
 
         return random.choice(aliveTeams)
 
