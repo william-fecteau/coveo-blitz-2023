@@ -22,6 +22,7 @@ class Bot:
         other_team_ids = [
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
 
+        roundNumber = self.gameMsg.round
         t = getNeighbours(self.gameMsg, Position(0, 0))
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
             value = self.optimisationMoneyGagnerParSeconde()
