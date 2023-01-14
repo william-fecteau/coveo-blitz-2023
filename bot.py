@@ -16,10 +16,15 @@ class Bot:
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
 
+        roundNumber = self.gameMsg.round
+        if roundNumber > 15:
+            return self.attackAfterRound10()
+
         return self.followPathStrat()
 
     def calculEco(self):
-        return self.EcoBase + round*25
+        roundNumber = self.gameMsg.round
+        return self.EcoBase + roundNumber*25
 
     def placeSpearman(self, actions):
         nbPaths = len(self.gameMsg.map.paths)
@@ -74,7 +79,7 @@ class Bot:
             actions.append(SendReinforcementsAction(
                 value[0], other_team_ids[0]))
 
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= calculEco():
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.calculEco():
             return actions
 
         self.placeSpike(actions)
@@ -186,7 +191,7 @@ class Bot:
             tilesList = path.tiles
             tilesList.pop(-1)
             for pos in tilesList:
-                posList: List[Neighbour] = getNeighbours(pos)
+                posList: List[Neighbour] = getNeighbours(self.gameMsg, pos)
                 goodPosSet = set()
                 for i in posList:
                     if not isTileEmpty(i.tile):
