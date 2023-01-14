@@ -1,4 +1,5 @@
-from strat1 import *
+from randomPlacementStrat import *
+from pathFollowStrat import *
 from game_message import *
 
 
@@ -9,7 +10,7 @@ class Bot:
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
 
-        strat = Strategy1()
+        strat = PathFollowStrat()
 
         return strat.execute(gameMsg)
 

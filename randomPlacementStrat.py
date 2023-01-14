@@ -7,7 +7,7 @@ from actions import *
 from common import *
 
 
-class Strategy1(Strategy):
+class RandomPlacementStrat(Strategy):
     def execute(self, gameMsg: GameMessage):
         actions = list()
 
