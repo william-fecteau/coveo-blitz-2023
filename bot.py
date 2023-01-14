@@ -58,7 +58,7 @@ class Bot:
             actions.append(SendReinforcementsAction(
                 value[0], other_team_ids[0]))
 
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.EcoBase + round*25:
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.OptimisationArgentPourEco():
             return actions
 
         self.placeSpearman(actions)
@@ -78,7 +78,7 @@ class Bot:
                 value[0], other_team_ids[0]))
 
 
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= self.EcoBase + roundNumber*25:
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= self.OptimisationArgentPourEco():
             towerPos = positionRandom()
 
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
@@ -192,12 +192,16 @@ class Bot:
             return max
         return None
 
-    def OptimisationArgentLousseEco(self):
+    def OptimisationArgentPourEco(self):
         nbPaths = len(self.gameMsg.map.paths)
+        nombreRound = self.gameMsg.round
         if (nbPaths == 1):
             self.EcoBase = 250
-            self.EcoScaling = 30
+            self.EcoScaling = 35
+        if (nbPaths == 2):
+            self.EcoBase = 240
+            self.EcoScaling = 35
         if (nbPaths == 4):
             self.EcoBase = 225
-            self.EcoScaling = 
-        return 0
+            self.EcoScaling = 25
+        return self.EcoBase + nombreRound*self.EcoScaling
