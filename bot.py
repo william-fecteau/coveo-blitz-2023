@@ -1,7 +1,7 @@
 from game_message import *
 from actions import *
 import random
-
+from OptimisationEco import *
 
 class Bot:
     def __init__(self):
@@ -16,8 +16,13 @@ class Bot:
         actions = list()
 
         curTeam = 0
-
-        if gameMsg.teamInfos[ourTeamId].money >= 200:
+        if gameMsg.teamInfos[ourTeamId].money >= 300:
+            actions.append(self.optimisationMoneyGagner()[0], otherTeamIds[curTeam % len(otherTeamIds)])
+            actions.append(optimisationMoneyGagnerParSeconde()[0], otherTeamIds[curTeam % len(otherTeamIds)])
+            actions.append(SendReinforcementsAction(
+                EnemyType.LVL1, otherTeamIds[curTeam % len(otherTeamIds)]))
+            curTeam += 0
+        elif gameMsg.teamInfos[ourTeamId].money >= 200:
             buildAction: BuildAction = self.randomTowerPlacement()
 
             actions.append(buildAction)
@@ -27,6 +32,7 @@ class Bot:
             # towerPos = neighboursPositions[posIndex]
         else:
             actions.append(self.optimisationMoneyGagner()[0], otherTeamIds[curTeam % len(otherTeamIds)])
+            actions.append(optimisationMoneyGagnerParSeconde()[0], otherTeamIds[curTeam % len(otherTeamIds)])
             actions.append(SendReinforcementsAction(
                 EnemyType.LVL1, otherTeamIds[curTeam % len(otherTeamIds)]))
             curTeam += 1
