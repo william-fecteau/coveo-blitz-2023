@@ -1,5 +1,6 @@
 from game_message import *
 from actions import *
+import random
 
 
 class Bot:
@@ -22,8 +23,12 @@ class Bot:
 
         if gameMsg.teamInfos[ourTeamId].money >= 200:
             pathPos: Position = gameMsg.map.paths[0].tiles[curIndex]
-            towerPos: Position = Position(pathPos.x + 1, pathPos.y + 1)
+            neighboursPositions = self.getNeighbours(pathPos, 1)
+            posIndex = random.randint(0, len(neighboursPositions) - 1)
+
+            towerPos = neighboursPositions[posIndex]
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
+            curIndex += 1
         else:
             actions.append(SendReinforcementsAction(EnemyType.LVL1, otherTeamIds[curTeam % len(otherTeamIds)]))
             curTeam += 1
