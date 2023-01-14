@@ -1,6 +1,6 @@
-from randomPlacementStrat import *
-from pathFollowStrat import *
 from game_message import *
+from actions import *
+import random
 
 
 class Bot:
@@ -8,8 +8,61 @@ class Bot:
         print("Initializing your super mega duper bot")
 
     def get_next_move(self, gameMsg: GameMessage):
+        """
+        Here is where the magic happens, for now the moves are not very good. I bet you can do better ;)
+        """
         self.gameMsg = gameMsg
 
-        strat = PathFollowStrat()
+        return self.randomPlacementStrat()
 
-        return strat.execute(gameMsg)
+    def randomPlacementStrat(self) -> BuildAction:
+        actions = list()
+        other_team_ids = [
+            team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
+
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 200:
+            randX = random.randint(0, self.gameMsg.map.width - 1)
+            randY = random.randint(0, self.gameMsg.map.height - 1)
+
+            towerPos = Position(randX, randY)
+
+            actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
+        else:
+            actions.append(SendReinforcementsAction(
+                EnemyType.LVL1, other_team_ids[0]))
+
+        return actions
+
+    def optimisationMoneyGagnerParSeconde(self) -> tuple[EnemyType, float]:
+        max = (EnemyType.LVL1, 0.1)
+        for value in self.gameMsg.shop.reinforcements.keys():
+            dictValues = self.gameMsg.shop.reinforcements[value]
+            nb = dictValues.count
+            rythme = dictValues.delayPerSpawnInTicks
+
+            # secondeParEnvoi = nb/rythme
+            secondePourEnvoyer = nb * rythme
+
+            salaireAugmentation = dictValues.payoutBonus
+
+            dollarParSeconde = salaireAugmentation/secondePourEnvoyer
+
+            if (max[1] < dollarParSeconde):
+                max = (value, dollarParSeconde)
+
+        return max
+
+    def OptimisationMoneyRentabiliter(self):
+        max = (EnemyType.LVL1, 0.1)
+        for value in self.gameMsg.shop.reinforcements.keys():
+            dictValues = self.gameMsg.shop.reinforcements[value]
+
+            salaireAugmentation = dictValues.payoutBonus
+            salaireCount = dictValues.price
+            ratioArgentCoutArgentWin = salaireCount/salaireAugmentation
+            tuple(value, ratioArgentCoutArgentWin)
+
+            if (max[1] < ratioArgentCoutArgentWin):
+                max = tuple(value, ratioArgentCoutArgentWin)
+
+        return max
