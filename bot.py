@@ -227,10 +227,11 @@ class Bot:
         return max
 
     def bestPositionSpike(self):
+        goodPosSet = set()
         for path in self.gameMsg.map.paths:
             tilesList = path.tiles
             tilesList.pop(-1)
-            goodPosSet = set()
+            
             for pos in tilesList:
                 posList: List[Neighbour] = getNeighbours(self.gameMsg, pos)
                 
@@ -247,12 +248,11 @@ class Bot:
                         if len(j.tile.paths) != 0:
                             countSpike += 1
                     goodPosSet.add((i.position, countSpike))
-
         maxTuple = (Position(0, 0), 0)
         for i in goodPosSet:
             if i[1] > maxTuple[1]:
                 maxTuple = i
-
+        print(maxTuple[1])
         return maxTuple
 
     def OptimisationArgentPourEco(self):
