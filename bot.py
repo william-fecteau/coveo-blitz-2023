@@ -12,6 +12,7 @@ class Bot:
         self.tileIndexes = None
         self.pathIndex = 0
         self.EcoBase = 225
+        self.EcoScaling = 25
 
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
@@ -85,30 +86,12 @@ class Bot:
             actions.append(SendReinforcementsAction(
                 value[0], other_team_ids[0]))
 
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.calculEco():
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.OptimisationArgentPourEco():
             return actions
 
         self.placeSpike(actions)
         self.placeSpearman(actions)
 
-        return actions
-
-    def randomPlacementStrat(self):
-        actions = list()
-        other_team_ids = [
-            team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
-
-        roundNumber = self.gameMsg.round
-        t = getNeighbours(self.gameMsg, Position(0, 0))
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 15:
-            value = self.optimisationMoneyGagnerParSeconde()
-            actions.append(SendReinforcementsAction(
-                value[0], other_team_ids[0]))
-
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= self.EcoBase + roundNumber*25:
-            towerPos = positionRandom(self.gameMsg)
-
-            actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
         return actions
 
     def attackAfterRound10(self) -> BuildAction:
@@ -219,3 +202,17 @@ class Bot:
                 maxTuple = i
 
         return maxTuple
+
+    def OptimisationArgentPourEco(self):
+        nbPaths = len(self.gameMsg.map.paths)
+        nombreRound = self.gameMsg.round
+        if (nbPaths == 1):
+            self.EcoBase = 250
+            self.EcoScaling = 35
+        if (nbPaths == 2):
+            self.EcoBase = 240
+            self.EcoScaling = 35
+        if (nbPaths == 4):
+            self.EcoBase = 225
+            self.EcoScaling = 25
+        return self.EcoBase + nombreRound*self.EcoScaling
