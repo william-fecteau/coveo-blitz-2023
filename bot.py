@@ -26,8 +26,14 @@ class Bot:
 
         return aliveTeams
 
+    def randomPlacementStrat(self):
+        towerPos = positionRandom(self.gameMsg)
+
+        return BuildAction(TowerType.SPEAR_SHOOTER, towerPos)
+
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
+
 
         if gameMsg.tick == 0 and len(gameMsg.map.paths) > 1:
             actions = list()
@@ -42,6 +48,13 @@ class Bot:
             self.aggresiveBuild()
         if roundNumber > 15:
             return self.attackAfterRound10()
+
+        if gameMsg.teamInfos[gameMsg.teamId].money > 1500:
+            actions = list()
+            actions.append(self.randomPlacementStrat())
+            actions.append(self.randomPlacementStrat())
+            actions.append(self.randomPlacementStrat())
+            return actions
 
         return self.followPathStrat()
 
