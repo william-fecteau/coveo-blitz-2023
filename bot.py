@@ -75,7 +75,6 @@ class Bot:
         cell = self.gameMsg.playAreas[teamId].grid[pos.x][pos.y]
 
         return len(cell.enemies) == 0 and len(cell.towers) == 0 and len(cell.paths) == 0
-<<<<<<< HEAD
 
     
     def optimisationMoneyGagner(self):
@@ -86,11 +85,11 @@ class Bot:
             rythme = dictValues.delayPerSpawnInTicks
 
             #secondeParEnvoi = nb/rythme
-            seondePourEnvoyer = nb * rythme
+            secondePourEnvoyer = nb * rythme
 
             salaireAugmentation = dictValues.payoutBonus
 
-            dollarParSeconde = salaireAugmentation/seondePourEnvoyer
+            dollarParSeconde = salaireAugmentation/secondePourEnvoyer
             tuple(value, dollarParSeconde)
             
             if (max[1] < dollarParSeconde):
@@ -98,7 +97,17 @@ class Bot:
         
         return max
 
-    def OptimisationMoneyWin():
-        return 0
-=======
->>>>>>> 3ed5bb783bca8d9c358dab2feb6e205ea9b696db
+    def OptimisationMoneyWin(self):
+        max = (EnemyType.LVL1, 0.1)
+        for value in self.gameMsg.shop.reinforcements.keys():
+            dictValues = self.gameMsg.shop.reinforcements[value]
+
+            salaireAugmentation = dictValues.payoutBonus
+            salaireCount = dictValues.price
+            ratioArgentCoutArgentWin = salaireCount/salaireAugmentation
+            tuple(value, ratioArgentCoutArgentWin)
+            
+            if (max[1] < ratioArgentCoutArgentWin):
+                max =tuple(value,ratioArgentCoutArgentWin)
+        
+        return max
