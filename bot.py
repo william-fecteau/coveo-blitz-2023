@@ -18,6 +18,9 @@ class Bot:
 
         return self.followPathStrat()
 
+    def calculEco(self):
+        return self.EcoBase + round*25
+
     def placeSpearman(self, actions):
         nbPaths = len(self.gameMsg.map.paths)
         if self.tileIndexes is None:
@@ -71,7 +74,7 @@ class Bot:
             actions.append(SendReinforcementsAction(
                 value[0], other_team_ids[0]))
 
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.EcoBase + roundNumber*25:
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= calculEco():
             return actions
 
         self.placeSpike(actions)
@@ -180,8 +183,10 @@ class Bot:
     def bestPositionSpike(self):
 
         for path in self.gameMsg.map.paths:
-            for pos in path.tiles:
-                posList: List[Neighbour] = getNeighbours(self.gameMsg, pos)
+            tilesList = path.tiles
+            tilesList.pop(-1)
+            for pos in tilesList:
+                posList: List[Neighbour] = getNeighbours(pos)
                 goodPosSet = set()
                 for i in posList:
                     if not isTileEmpty(i.tile):
