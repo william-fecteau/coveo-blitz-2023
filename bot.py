@@ -10,9 +10,13 @@ class Bot:
         self.tileIndexes = None
         self.pathIndex = 0
         self.EcoBase = 225
+        self.EcoScaling = 25
 
     def get_next_move(self, gameMsg: GameMessage):
         self.gameMsg = gameMsg
+        roundNumber = self.gameMsg.round
+        if roundNumber > 15:
+            return self.attackAfterRound10()
 
         return self.followPathStrat()
 
@@ -187,3 +191,13 @@ class Bot:
         if max[1] >= 4:
             return max
         return None
+
+    def OptimisationArgentLousseEco(self):
+        nbPaths = len(self.gameMsg.map.paths)
+        if (nbPaths == 1):
+            self.EcoBase = 250
+            self.EcoScaling = 30
+        if (nbPaths == 4):
+            self.EcoBase = 225
+            self.EcoScaling = 
+        return 0
