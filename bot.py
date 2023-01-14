@@ -79,12 +79,10 @@ class Bot:
 
         # Economy
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 15:
-            other_team_ids = [
-                team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
             value = self.optimisationMoneyGagnerParSeconde()
 
             actions.append(SendReinforcementsAction(
-                value[0], other_team_ids[0]))
+                value[0], self.selectAliveTeam()))
 
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.OptimisationArgentPourEco():
             return actions
@@ -94,15 +92,22 @@ class Bot:
 
         return actions
 
-    def attackAfterRound10(self) -> BuildAction:
-        actions = list()
+    def selectAliveTeam(self):
         other_team_ids = [
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
+
+        for teamId in other_team_ids:
+            if self.gameMsg.teamInfos[teamId].isAlive:
+                return teamId
+
+    def attackAfterRound10(self) -> BuildAction:
+        actions = list()
+        
         # prio send attack
         bestDPS = self.OptimisationDmgTime()
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 100:
             actions.append(SendReinforcementsAction(
-                bestDPS[0], other_team_ids[0]))
+                bestDPS[0], self.selectAliveTeam()))
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 1000:
             towerPos = positionRandom(self.gameMsg)
 
