@@ -104,7 +104,7 @@ class Bot:
 
         ratio = float(spearmanCount)/float(spikeCount)
 
-        if posAndCount[1] > 6 and ratio < 3:
+        if posAndCount[1] >= 6 and ratio < 3:
             actions.append(BuildAction(
                 TowerType.SPIKE_SHOOTER, posAndCount[0]))
             return
