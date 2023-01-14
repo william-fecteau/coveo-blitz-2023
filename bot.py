@@ -45,8 +45,24 @@ class Bot:
         if foundPlace:
             self.pathIndex += 1
 
+    def placeSpike(self, actions):
+        PATH_INTERSECTION_MIN = 4
+
+        posAndCount = self.bestPositionSpike()
+        print(posAndCount)
+
+        if posAndCount[1] < PATH_INTERSECTION_MIN:
+            return
+
+        spearmanCount = countTowerType(self.gameMsg, TowerType.SPEAR_SHOOTER)
+        if spearmanCount > 7:
+            actions.append(BuildAction(
+                TowerType.SPIKE_SHOOTER, posAndCount[0]))
+
     def followPathStrat(self):
         actions = list()
+
+        roundNumber = self.gameMsg.round
 
         # Economy
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 15:
@@ -60,6 +76,7 @@ class Bot:
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= calculEco():
             return actions
 
+        self.placeSpike(actions)
         self.placeSpearman(actions)
 
         return actions
@@ -75,7 +92,6 @@ class Bot:
             value = self.optimisationMoneyGagnerParSeconde()
             actions.append(SendReinforcementsAction(
                 value[0], other_team_ids[0]))
-
 
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= self.EcoBase + roundNumber*25:
             towerPos = positionRandom()
@@ -175,20 +191,19 @@ class Bot:
                     if not isTileEmpty(i.tile):
                         continue
 
-                    count = 0
-                    neighbourList = getNeighbours(i.position)
+                    countSpike = 0
+                    neighbourList = getNeighbours(self.gameMsg, i.position)
                     for j in neighbourList:
-                        if j is None:
+                        if j.tile is None:
                             continue
 
                         if len(j.tile.paths) != 0:
-                            count += 1
-                    goodPosSet.add((i.position, count))
+                            countSpike += 1
+                    goodPosSet.add((i.position, countSpike))
 
-        max = (Position(0, 0), 0)
+        maxTuple = (Position(0, 0), 0)
         for i in goodPosSet:
-            if i[1] > max[1]:
-                max = i
-        if max[1] >= 4:
-            return max
-        return None
+            if i[1] > maxTuple[1]:
+                maxTuple = i
+
+        return maxTuple
