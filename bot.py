@@ -4,6 +4,8 @@ from common import *
 from dataJellyFish import *
 import random
 
+SPEARMAN_START = 6
+
 
 class Bot:
     def __init__(self):
@@ -18,17 +20,25 @@ class Bot:
         if roundNumber > 15:
             return self.attackAfterRound10()
 
+        roundNumber = self.gameMsg.round
+        if roundNumber > 15:
+            return self.attackAfterRound10()
+
         return self.followPathStrat()
+
+    def calculEco(self):
+        roundNumber = self.gameMsg.round
+        return self.EcoBase + roundNumber*25
 
     def placeSpearman(self, actions):
         nbPaths = len(self.gameMsg.map.paths)
         if self.tileIndexes is None:
-            self.tileIndexes = [0 for _ in range(nbPaths)]
+            self.tileIndexes = [SPEARMAN_START for _ in range(nbPaths)]
 
         self.pathIndex = self.pathIndex % nbPaths
 
         if self.tileIndexes[self.pathIndex] >= len(self.gameMsg.map.paths[self.pathIndex].tiles):
-            self.tileIndexes[self.pathIndex] = 0
+            self.tileIndexes[self.pathIndex] = SPEARMAN_START
 
         pathPos = self.gameMsg.map.paths[self.pathIndex].tiles[self.tileIndexes[self.pathIndex]]
         neighbours: list[Neighbour] = getNeighbours(self.gameMsg, pathPos)
@@ -46,8 +56,23 @@ class Bot:
         if foundPlace:
             self.pathIndex += 1
 
+    def placeSpike(self, actions):
+        PATH_INTERSECTION_MIN = 4
+
+        posAndCount = self.bestPositionSpike()
+
+        if posAndCount[1] < PATH_INTERSECTION_MIN:
+            return
+
+        spearmanCount = countTowerType(self.gameMsg, TowerType.SPEAR_SHOOTER)
+        if spearmanCount > 7:
+            actions.append(BuildAction(
+                TowerType.SPIKE_SHOOTER, posAndCount[0]))
+
     def followPathStrat(self):
         actions = list()
+
+        roundNumber = self.gameMsg.round
 
         # Economy
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 15:
@@ -61,6 +86,7 @@ class Bot:
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.OptimisationArgentPourEco():
             return actions
 
+        self.placeSpike(actions)
         self.placeSpearman(actions)
 
         return actions
@@ -167,30 +193,31 @@ class Bot:
     def bestPositionSpike(self):
 
         for path in self.gameMsg.map.paths:
-            for pos in path.tiles:
-                posList: List[Neighbour] = getNeighbours(pos)
+            tilesList = path.tiles
+            tilesList.pop(-1)
+            for pos in tilesList:
+                posList: List[Neighbour] = getNeighbours(self.gameMsg, pos)
                 goodPosSet = set()
                 for i in posList:
                     if not isTileEmpty(i.tile):
                         continue
 
-                    count = 0
-                    neighbourList = getNeighbours(i.position)
+                    countSpike = 0
+                    neighbourList = getNeighbours(self.gameMsg, i.position)
                     for j in neighbourList:
-                        if j is None:
+                        if j.tile is None:
                             continue
 
                         if len(j.tile.paths) != 0:
-                            count += 1
-                    goodPosSet.add((i.position, count))
+                            countSpike += 1
+                    goodPosSet.add((i.position, countSpike))
 
-        max = (Position(0, 0), 0)
+        maxTuple = (Position(0, 0), 0)
         for i in goodPosSet:
-            if i[1] > max[1]:
-                max = i
-        if max[1] >= 4:
-            return max
-        return None
+            if i[1] > maxTuple[1]:
+                maxTuple = i
+
+        return maxTuple
 
     def OptimisationArgentPourEco(self):
         nbPaths = len(self.gameMsg.map.paths)
