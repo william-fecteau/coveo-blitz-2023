@@ -135,6 +135,7 @@ class Bot:
     def aggresiveBuild(self):
         actions = list()
 
+        print("Aggressive build")
         roundNumber = self.gameMsg.round
 
         self.placeSpike(actions)
@@ -266,5 +267,11 @@ class Bot:
             self.EcoScaling = 35
         if (nbPaths == 4):
             self.EcoBase = 225
+            self.EcoScaling = 25
+        if nbPaths == 5:
+            self.EcoBase = 225
+            self.EcoScaling = 25
+        if nbPaths == 6:
+            self.EcoBase = 215
             self.EcoScaling = 25
         return self.EcoBase + nombreRound*self.EcoScaling
