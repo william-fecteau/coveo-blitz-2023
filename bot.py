@@ -30,10 +30,7 @@ class Bot:
 
 
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 250:
-            randX = random.randint(0, self.gameMsg.map.width - 1)
-            randY = random.randint(0, self.gameMsg.map.height - 1)
-
-            towerPos = Position(randX, randY)
+            towerPos = positionRandom()
 
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
         return actions
@@ -43,8 +40,13 @@ class Bot:
         other_team_ids = [
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
         #prio send attack
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= 100:
-            actions.append(SendReinforcementsAction(self.OptimisationMoneyRentabiliter()[0], other_team_ids[0]))
+        bestDPS = self.OptimisationDmgTime()
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 100:
+            actions.append(SendReinforcementsAction(bestDPS[0], other_team_ids[0]))
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 1000:
+            towerPos = positionRandom()
+
+            actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
 
     def optimisationMoneyGagnerParSeconde(self) -> tuple[EnemyType, float]:
         max = (EnemyType.LVL1, 0.1)
