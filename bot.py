@@ -15,22 +15,7 @@ class Bot:
 
         return self.followPathStrat()
 
-    def followPathStrat(self):
-        actions = list()
-
-        # Economy
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
-            other_team_ids = [
-                team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
-            value = self.optimisationMoneyGagnerParSeconde()
-
-            actions.append(SendReinforcementsAction(
-                value[0], other_team_ids[0]))
-
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= 260:
-            return actions
-
-        # Spear placement
+    def placeSpearman(self, actions):
         nbPaths = len(self.gameMsg.map.paths)
         if self.tileIndexes is None:
             self.tileIndexes = [0 for _ in range(nbPaths)]
@@ -55,6 +40,23 @@ class Bot:
 
         if foundPlace:
             self.pathIndex += 1
+
+    def followPathStrat(self):
+        actions = list()
+
+        # Economy
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
+            other_team_ids = [
+                team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
+            value = self.optimisationMoneyGagnerParSeconde()
+
+            actions.append(SendReinforcementsAction(
+                value[0], other_team_ids[0]))
+
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= 260:
+            return actions
+
+        self.placeSpearman(actions)
 
         return actions
 
