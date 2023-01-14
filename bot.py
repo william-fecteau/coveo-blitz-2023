@@ -36,6 +36,12 @@ class Bot:
         if self.tileIndexes[self.pathIndex] >= len(self.gameMsg.map.paths[self.pathIndex].tiles):
             self.tileIndexes[self.pathIndex] = SPEARMAN_START
 
+        # countSpearman = countTowerType(self.gameMsg, TowerType.SPEAR_SHOOTER)
+        # if countSpearman % len(self.gameMsg.map.paths) == 0:
+        #     bestPosAndCount = self.bestPositionSpike()
+        #     actions.append(BuildAction(
+        #         TowerType.SPEAR_SHOOTER, neighbour.position))
+
         pathPos = self.gameMsg.map.paths[self.pathIndex].tiles[self.tileIndexes[self.pathIndex]]
         neighbours: list[Neighbour] = getNeighbours(self.gameMsg, pathPos)
 
@@ -100,7 +106,7 @@ class Bot:
                 value[0], other_team_ids[0]))
 
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= self.EcoBase + roundNumber*25:
-            towerPos = positionRandom()
+            towerPos = positionRandom(self.gameMsg)
 
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
         return actions
@@ -115,7 +121,7 @@ class Bot:
             actions.append(SendReinforcementsAction(
                 bestDPS[0], other_team_ids[0]))
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 1000:
-            towerPos = positionRandom()
+            towerPos = positionRandom(self.gameMsg)
 
             actions.append(BuildAction(TowerType.SPEAR_SHOOTER, towerPos))
 
