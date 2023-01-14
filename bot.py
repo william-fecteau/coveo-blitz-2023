@@ -195,9 +195,10 @@ class Bot:
         for path in self.gameMsg.map.paths:
             tilesList = path.tiles
             tilesList.pop(-1)
+            goodPosSet = set()
             for pos in tilesList:
                 posList: List[Neighbour] = getNeighbours(self.gameMsg, pos)
-                goodPosSet = set()
+                
                 for i in posList:
                     if not isTileEmpty(i.tile):
                         continue
