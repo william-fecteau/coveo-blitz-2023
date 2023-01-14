@@ -19,7 +19,15 @@ class Bot:
         actions = list()
 
         # TODO: MAKE BETTER ECONOMY CHOICE
-        if self.gameMsg.teamInfos[self.gameMsg.teamId].money < 200:
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 10:
+            other_team_ids = [
+                team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
+            value = self.optimisationMoneyGagnerParSeconde()
+
+            actions.append(SendReinforcementsAction(
+                value[0], other_team_ids[0]))
+
+        if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= 260:
             return actions
 
         nbPaths = len(self.gameMsg.map.paths)
@@ -61,7 +69,6 @@ class Bot:
             actions.append(SendReinforcementsAction(
                 value[0], other_team_ids[0]))
 
-
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 250:
             towerPos = positionRandom()
 
@@ -72,10 +79,11 @@ class Bot:
         actions = list()
         other_team_ids = [
             team for team in self.gameMsg.teams if team != self.gameMsg.teamId]
-        #prio send attack
+        # prio send attack
         bestDPS = self.OptimisationDmgTime()
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 100:
-            actions.append(SendReinforcementsAction(bestDPS[0], other_team_ids[0]))
+            actions.append(SendReinforcementsAction(
+                bestDPS[0], other_team_ids[0]))
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 1000:
             towerPos = positionRandom()
 
@@ -119,11 +127,12 @@ class Bot:
         max = (EnemyType.LVL1, 0.1)
         lvl = 0
         for value in self.gameMsg.shop.reinforcements.keys():
-            lvl +=1
+            lvl += 1
             dictValues = self.gameMsg.shop.reinforcements[value]
 
-            maxDamage = EnnemiStats["ennemi"][f'lvl{lvl}']['maxHP'] * dictValues.count
-            dmgPerMoney = maxDamage / dictValues.price            
+            maxDamage = EnnemiStats["ennemi"][f'lvl{lvl}']['maxHP'] * \
+                dictValues.count
+            dmgPerMoney = maxDamage / dictValues.price
 
             if (max[1] < dmgPerMoney):
                 max = tuple(value, dmgPerMoney)
@@ -134,11 +143,12 @@ class Bot:
         max = (EnemyType.LVL1, 0.1)
         lvl = 0
         for value in self.gameMsg.shop.reinforcements.keys():
-            lvl +=1
+            lvl += 1
             dictValues = self.gameMsg.shop.reinforcements[value]
 
-            maxDamage = EnnemiStats["ennemi"][f'lvl{lvl}']['maxHP'] * dictValues.count
-            dmgPerTime = maxDamage / dictValues.delayPerSpawnInTicks            
+            maxDamage = EnnemiStats["ennemi"][f'lvl{lvl}']['maxHP'] * \
+                dictValues.count
+            dmgPerTime = maxDamage / dictValues.delayPerSpawnInTicks
 
             if (max[1] < dmgPerTime):
                 max = tuple(value, dmgPerTime)
