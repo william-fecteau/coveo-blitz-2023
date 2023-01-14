@@ -1,5 +1,5 @@
 from game_message import *
-
+import random
 
 def getNeighbours(gameMsg: GameMessage, position: Position) -> list[Neighbour]:
     neighbours = list()
@@ -23,3 +23,5 @@ def getNeighbours(gameMsg: GameMessage, position: Position) -> list[Neighbour]:
 
 def isTileEmpty(tile: Tile):
     return tile is None or (len(tile.paths) == 0 and len(tile.towers) == 0 and len(tile.enemies) == 0 and not tile.hasObstacle)
+def positionRandom(self):
+    return Position(random.randint(0, self.gameMsg.map.width - 1), random.randint(0, self.gameMsg.map.height - 1))
