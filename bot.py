@@ -52,6 +52,9 @@ class Bot:
         maxEnemy = max(enemies)
         ourEnemy = len(self.gameMsg.playAreas[self.gameMsg.teamId].enemies)
 
+        if ourEnemy == 0:
+            ourEnemy = 1
+
         ratio = float(maxEnemy)/float(ourEnemy)
 
         return ratio > 1.2
@@ -121,8 +124,10 @@ class Bot:
             if len(self.gameMsg.teamInfos[self.gameMsg.teamId].sentReinforcements) < 8:
                 value = self.optimisationMoneyGagnerParSeconde()
 
-                actions.append(SendReinforcementsAction(
-                    value[0], self.selectAliveTeam()))
+                targettedTeam = self.selectAliveTeam()
+                if len(self.gameMsg.playAreas[targettedTeam].enemyReinforcementsQueue) < 8:
+                    actions.append(SendReinforcementsAction(
+                        value[0], targettedTeam))
 
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.OptimisationArgentPourEco():
             return actions
@@ -154,8 +159,10 @@ class Bot:
         # prio send attack
         bestDPS = self.OptimisationDmgTime()
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 100:
-            actions.append(SendReinforcementsAction(
-                bestDPS[0], self.selectAliveTeam()))
+            targettedTeam = self.selectAliveTeam()
+            if len(self.gameMsg.playAreas[targettedTeam].enemyReinforcementsQueue) < 8:
+                actions.append(SendReinforcementsAction(
+                    bestDPS[0], targettedTeam))
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 1000:
             towerPos = positionRandom(self.gameMsg)
 
@@ -232,10 +239,10 @@ class Bot:
         for path in self.gameMsg.map.paths:
             tilesList = path.tiles
             tilesList.pop(-1)
-            
+
             for pos in tilesList:
                 posList: List[Neighbour] = getNeighbours(self.gameMsg, pos)
-                
+
                 for i in posList:
                     if not isTileEmpty(i.tile):
                         continue
