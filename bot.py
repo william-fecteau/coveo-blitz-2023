@@ -79,10 +79,11 @@ class Bot:
 
         # Economy
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 15:
-            value = self.optimisationMoneyGagnerParSeconde()
+            if len(self.gameMsg.teamInfos[self.gameMsg.teamId].sentReinforcements) < 8:
+                value = self.optimisationMoneyGagnerParSeconde()
 
-            actions.append(SendReinforcementsAction(
-                value[0], self.selectAliveTeam()))
+                actions.append(SendReinforcementsAction(
+                    value[0], self.selectAliveTeam()))
 
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money <= self.OptimisationArgentPourEco():
             return actions
@@ -102,7 +103,7 @@ class Bot:
 
     def attackAfterRound10(self) -> BuildAction:
         actions = list()
-        
+
         # prio send attack
         bestDPS = self.OptimisationDmgTime()
         if self.gameMsg.teamInfos[self.gameMsg.teamId].money >= 100:
